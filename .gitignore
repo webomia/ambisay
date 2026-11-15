@@ -1,0 +1,42 @@
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+**/build/
+out/
+
+# Configuración local y secretos (la clave XAI_API_KEY va solo en local.properties)
+local.properties
+keystore.properties
+secrets.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+.env
+.env.*
+
+# Artefactos de compilación
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+release/
+
+# Android Studio / IntelliJ (se comparten solo los estilos de código)
+*.iml
+.idea/*
+!.idea/codeStyles/
+!.idea/codeStyleConfig.xml
+captures/
+.externalNativeBuild/
+.cxx/
+.navigation/
+
+# Logs y sistema
+*.log
+*.hprof
+.DS_Store
+Thumbs.db

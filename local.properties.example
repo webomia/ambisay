@@ -1,0 +1,13 @@
+# Copia este fichero como local.properties y rellénalo. local.properties está en .gitignore: no lo subas nunca.
+
+# Ruta a tu Android SDK (Android Studio la rellena sola).
+sdk.dir=
+
+# Clave de la API de xAI (https://console.x.ai). Nunca la pongas en el código.
+XAI_API_KEY=
+# Opcional: modelo con visión (Responses API). Ver https://docs.x.ai/docs/models
+XAI_MODEL=
+
+# Meta Wearables Developer Center. En Developer Mode (app Meta AI) puedes poner 0.
+mwdat_application_id=
+mwdat_client_token=
