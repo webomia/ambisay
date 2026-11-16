@@ -131,8 +131,9 @@ audio↔audio y su documentación no menciona entrada de vídeo/imágenes, por e
    Opcional: `XAI_MODEL=` otro modelo con visión.
 3. **Meta (Developer Mode)**:
    - Instalar la app **Meta AI**, emparejar las gafas y actualizar firmware.
-   - En Meta AI: Ajustes → *App info* → pulsar varias veces la versión para activar **Developer Mode**
-     (ver https://wearables.developer.meta.com/docs/getting-started-toolkit/).
+   - En Meta AI: Ajustes → *App info* → pulsar **5 veces** el número de versión y activar el interruptor
+     **Developer Mode** (ver https://wearables.developer.meta.com/docs/getting-started-toolkit/).
+     Sin él, el registro falla con *"Registration process failed for an unspecified reason"*.
    - Con Developer Mode, `mwdat_application_id=0` y `mwdat_client_token=0` sirven.
    - Para distribuir a otras personas: crear cuenta/organización en el **Wearables Developer Center**
      (https://wearables.developer.meta.com), registrar la app, pedir los permisos (cámara; audio streaming es
@@ -140,14 +141,26 @@ audio↔audio y su documentación no menciona entrada de vídeo/imágenes, por e
 4. Instalar el APK, aceptar permisos (Bluetooth, micro, cámara, notificaciones).
 5. **Conectar gafas** (abre Meta AI para registrar la app) → **Permiso cámara** (en Meta AI) → Fuente *Gafas* →
    **Iniciar asistente**. Sin gafas: Fuente *Cámara móvil*.
+6. Si la fuente *Gafas* muestra **ERROR**, casi siempre falta el permiso de cámara: pulsa **Permiso cámara**, acéptalo
+   en Meta AI y vuelve a iniciar el asistente. El motivo exacto aparece en la línea roja ⚠️ de la pantalla.
+
+### Novedades
+- **Registro con Meta AI arreglado**: el SDK se inicializa en `onCreate` (si ya hay permiso Bluetooth) para no perder
+  la vuelta desde Meta AI, y se quita `Wearables.handleIntent`, como en el ejemplo oficial de Meta. Mensaje de error
+  más claro que recuerda activar Developer Mode.
+- **Sin pitidos al escuchar**: el `SpeechRecognizer` de Android pita al empezar y terminar cada ciclo de escucha.
+  Ahora, mientras escucha, se silencian los canales de música, notificaciones y sistema, y se restauran cuando
+  habla Grok o al parar el asistente.
+- **Probado en gafas reales**: registro, permiso de cámara, vídeo de las gafas y respuesta por voz funcionando.
 
 ---
 
 ## 4. Pendiente / TODO
-- [ ] Probar en hardware real (Ray-Ban Meta Gen 2) y ajustar umbrales por defecto.
+- [x] Probar en hardware real (Ray-Ban Meta): registro, cámara y voz funcionan.
+- [ ] Ajustar umbrales por defecto con el uso real.
 - [ ] Confirmar que `VideoFrame.buffer` sin comprimir sigue siendo **I420** en 1.0.1 (el sample 0.8 de Meta lo dice; `YuvConverter`).
 - [ ] Confirmar si una misma `DeviceSession` admite **cámara + display** a la vez (Ray-Ban Display) o hacen falta dos sesiones.
-- [ ] Diálogo para aceptar `RegistrationRequest` iniciadas desde Meta AI (`Wearables.handleIntent`, ahora solo muestra un toast).
+- [ ] Diálogo para aceptar `RegistrationRequest` iniciadas desde Meta AI (ahora el registro solo se inicia desde la app).
 - [ ] Verificar que xAI acepta `"detail":"low"` en `input_image` (la doc solo muestra `"high"`).
 - [ ] Opción de usar el **micrófono de las gafas vía DAT** (`StreamConfiguration.audioCodec = AudioCodec.PCM(...)`,
       experimental) + **STT de xAI** (`wss://api.x.ai/v1/stt`) en lugar del SpeechRecognizer.
@@ -168,6 +181,8 @@ audio↔audio y su documentación no menciona entrada de vídeo/imágenes, por e
   móvil (decodificación, red, wake lock). Usa LOW/7 fps (ya configurado) y para el asistente cuando no lo necesites.
 - **Bluetooth**: el stream puede pausarse (toque en la patilla, quitarse las gafas, otra experiencia de Meta); la app
   refleja `PAUSED` y espera a que el SDK reanude.
+- **Sonido del móvil**: mientras la app escucha, la música y las notificaciones del móvil quedan en silencio
+  (es lo que evita el pitido del reconocedor); vuelven al pausar o parar el asistente.
 - El toolkit está en **developer preview**: las APIs pueden cambiar entre versiones.
 
 ## 6. Compilar
