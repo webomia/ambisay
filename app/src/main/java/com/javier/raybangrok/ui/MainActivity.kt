@@ -1,9 +1,10 @@
 package com.javier.raybangrok.ui
 
 import android.Manifest
-import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,8 +44,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val perms = mutableListOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)
         if (Build.VERSION.SDK_INT >= 33) perms += Manifest.permission.POST_NOTIFICATIONS
+        // Si el permiso Bluetooth ya estaba concedido, inicializa el SDK de Meta ya, antes de que
+        // llegue la vuelta del registro desde Meta AI (si no, la respuesta se pierde).
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            RayBanGrokApp.initWearables(application)
+            observeWearables()
+        }
         androidPerms.launch(perms.toTypedArray())
-        handleDatIntent(intent)
 
         val store = SettingsStore(this)
         setContent {
@@ -72,27 +78,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleDatIntent(intent)
-    }
-
-    /** Peticiones de registro iniciadas desde la app Meta AI (deep link raybangrok://). */
-    private fun handleDatIntent(intent: Intent?) {
-        if (intent == null || !RayBanGrokApp.wearablesReady) return
-        Wearables.handleIntent(intent) { request ->
-            // TODO: mostrar diálogo de confirmación; RegistrationRequest expone aceptar/cancelar
-            // (ver API reference de RegistrationRequest antes de llamarlo).
-            toast("Solicitud de registro recibida desde Meta AI: $request")
-        }
-    }
-
     private var observing = false
     private fun observeWearables() {
         if (observing || !RayBanGrokApp.wearablesReady) return
         observing = true
         lifecycleScope.launch { Wearables.registrationState.collect { registration.value = it } }
-        lifecycleScope.launch { Wearables.registrationErrorStream.collect { toast("Registro: ${it.description}") } }
+        lifecycleScope.launch {
+            Wearables.registrationErrorStream.collect {
+                Log.e("RayBanGrok", "Registro falló: $it / ${it.description}")
+                toast("Registro: ${it.description}. ¿Está activado el modo desarrollador en Meta AI?")
+            }
+        }
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
