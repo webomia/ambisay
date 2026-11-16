@@ -179,6 +179,6 @@ Gradle 8.13 · AGP 8.13.0 · Kotlin 2.2.21 · compileSdk/targetSdk 36 · minSdk 
 
 ## 7. Licencia
 
-Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE).
+Copyright © 2026 Javier Conesa Cerdán. Todos los derechos reservados. Consulta el archivo LICENSE.
 
 Este proyecto no está afiliado a Meta, Ray-Ban ni xAI. Las marcas pertenecen a sus respectivos propietarios.
